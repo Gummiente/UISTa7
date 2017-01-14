@@ -1,0 +1,89 @@
+========================================================================================================================
+-------------------------------------------------------- BIO IK --------------------------------------------------------
+========================================================================================================================
+Hello! :)
+First of all, thank you for your interest and trust in this asset!
+I hope (and believe!) you will not be disappointed.
+
+With this asset I developed during my thesis, you will be able to solve the inverse kinematics problem on arbitrary
+joint chains in real-time. It is very easy-to-use and only consists of three intuitive and greatly adjustable script components.
+Joint constraints (limits) can be set independently for each axis of motion which can be either translational (prismatic),
+rotational (revolute) or continuous (rotational without limits). Additionally, a maximum velocity and maximum acceleration 
+can be defined with intend to simulate realistic motion. The IK problem can be solved either purely for position or orientation
+but also for full pose or looking direction. Also, solutions can be found when solving for multiple end effectors simultaneously
+sharing same joints within their chains. Of course, the kinematic joint component is also applicable to manually control the
+motion of your kinematic body. If existent, any underlying animation is also considered and can be individually weighted.
+
+The developed algorithm tackles the problem by biologically-inspired optimization based on genetic algorithms and
+particle swarm optimization and therefore avoids running into mathematical problems of related IK solvers and scales
+well even for greatly higher degree of freedom. Also, multiple end effectors with shared joints can be considered and
+underlying animation can be used.
+
+Everything you need are the 'KinematicJoint' as well as the 'IKBody' and 'IKTip' scripts. I suggest you take a look at the
+various demo scenes. Although they should be quite self-explanatory, I also provide a short step-by-step tutorial below. :)
+
+If you are happy with this asset, please let me know! If you use it for scientific research or related purposes,
+I'd be glad if you reference my Master's Thesis or the corresponding publication on my website.
+
+If you have any questions or suggestions for improvements, just contact me. If you experience any bugs or unexpected
+behaviour - please let me know! I will fix it as soon as possible since I'm very interested in consistently
+improving this asset. Hence, further updates will frequently come! :)
+
+Cheers,
+Sebastian
+
+--- HOW TO SETUP YOUR KINEMATIC MODEL ---
+#Step 1: Provide an arbitrary model with a hierarchical structure of game objects.
+#Step 2: Add a 'Kinematic Joint' component to each game object within the kinematic chain that shall be able to move.
+	 IMPORTANT: If you want to use an underlying animation, please make sure to add a 'Kinematic Joint' component to >each<
+	 game object along the kinematic chain that is affected by the animation. You can leave it unchanged, but it should simply be there.
+	 This is required for the IK solver to incorporate the animation offset, to avoid unneccessary computation for the end effectors
+     and thus to avoid fluctuations. You can then simply play around with the 'Animation Weight' parameter when solving IK. :)
+#Step 3: Adjust the axes of motion if neccessary. Note that zero limits will not allow any motion.
+#Step 4: Adjust the maximum velocity and maximum acceleration. If you want instantaneous movement, use "Teleport" mode.
+#Step 5: Add the 'IKBase' component to the desired base of your model. This manages solving the inverse kinematics for
+	 multiple kinematic chains.
+#Step 6: Add an 'IKTarget' component to each end effector for which the IK problem shall be solved. Note that multiple
+	 end effectors can be considered, but will naturally increase the complexity in optimization. You can now also
+	 adjust individual weights for each end effector in the 'IK Base' component.
+#Step 6: If not already done, assign the target transforms to the 'IK Tip' components.
+#Step 7: Optionally: Check the visualized kinematic chains.
+#Step 8: Everything should be fine now. Go play! :)
+
+Notes on the Parameters...
+Population Size: This is the number of individuals (solutions) that are heuristically created and evolved (recombination, mutation,
+adoption) during each evolutionary generation (iteration). This number should always be significantly higher than the elitist individuals.
+Elites: This is the number of individuals that are currently most successfull among the population. Those are tracked and are
+exploited to track multiple solutions (local extrema) simultaneously. 1 Elite will cause strictly unimodal solutions
+but might get stuck in suboptimal extrema. Multiple elites are likely to cause small fluctuations due to multimodal optimization.
+
+For simple kinematic structure, a combination like 12-4 or 15-1 should work well. For extremely complex geometry, solutions like
+40-1 or 25-3 might be more appropriate.
+
+========================================================================================================================
+--------------------------------------------------- ADDITIONAL NOTES ---------------------------------------------------
+========================================================================================================================
+#1 - Translational values are in metres and rotational values are interpreted in radians. I'm not quite sure whether degrees
+     or radians are more desired by users. The algorithm expicitely requires radians for doing the pose optimization and I
+     wanted to avoid unneccessary computations. Also, I come from the area of robotics where radians are typically used.
+     However, I'm thinking of changing it to degrees representation in near future if people wish. :)
+#2 - Please avoid non-uniform scaling. It's the root of all evil and might destroy the IK solutions. The implemented FK solver does
+     not consider this mainly for performance reasons.
+#3 - The 'Maximum Frame Time' parameter implicitely controls the number of iterations per frame. Hence, allowing more time
+     will result in more accurate solutions as well as more robust convergence with fewer fluctuations. I believe limiting
+     the available time rather than specifing a fixed number of iterations is more suitable for most applications.
+#4 - I'm trying to provide a more intuitive solution very soon for #Step 2. I'm thinking of controlling all joints via the
+     'IK Body' component located at the base of the kinematic model. However, this might become very messy for complex models.
+#5 - If you use zero velocity and acceleration, you will see the actual output of the IK solver at each frame. This might be
+     a little bit noisy due to the highly dynamic and multimodal search space exploration. However, the reason for this comes
+     from the probabilistic evolutionary optimization which performs an overall robust and very reliable iterative optimization
+     for even complex models where traditional solvers often fail. The 'KinematicJoint' components then simulate realistic
+     motion by velocity and acceleration which lastly smoothes the motion planning process and visually eliminates the noise.
+#6 - While the position, orientation as well as looking direction objectives are comparatively easy to solve, a pose objective
+     yield a relatively complex multi-objective optimization problem. In this, the position and orientation errors are equally
+     weighted. Hence, if a target can not be satisfied both by position and orientation by the end effector, the translational
+     error will try to fit the orientation error. So do not feel confused if the end effector does not move closer to the target
+     and try to always specify reachable targets. :)
+#7 - Some changes in scripts during runtime are not yet fully supported (for example setting motions to fixed/free).
+     In this case, you would need to manually call "Rebuild()" in the related 'IKBody' component.
+========================================================================================================================
