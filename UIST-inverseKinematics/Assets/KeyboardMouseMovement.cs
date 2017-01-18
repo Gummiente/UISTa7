@@ -24,7 +24,7 @@ public class KeyboardMouseMovement : MonoBehaviour {
     private float currentRadius;
 
     public BioIK.KinematicJoint[] kinematicJoints;
-    private Animator toolAnimator;
+    private GameObject toolAnimator;
     private string jointLogFormat = "{0,-11} {1,-12:F4} {2,-12:F4} {3,-12:F4} {4,-12:F4} {5,-12:F4} {6,-12:F4} {7,-12:F4}";
     private string coordinateLogFormat = "{0,-8}\nPosition:   {1,-12:F4} {2,-12:F4} {3,-12:F4}\nRotation:   {4,-12:F4} {5,-12:F4} {6,-12:F4}";
 
@@ -34,7 +34,7 @@ public class KeyboardMouseMovement : MonoBehaviour {
         rot = transform.localRotation.eulerAngles;
         performSpiral = false;
 
-        toolAnimator = GameObject.Find("Hammer").GetComponent<Animator>();
+        toolAnimator = GameObject.Find("Hammer");
         kinematicJoints = new BioIK.KinematicJoint[7];
         string jointName = "joint_a{0}";
         GameObject joint;
@@ -92,6 +92,7 @@ public class KeyboardMouseMovement : MonoBehaviour {
     }
 
     private void oneSpiralStep() {
+
         Vector3 pos = transform.position;
 
         float xPos = Mathf.Sin(Time.time * spiralSpeed) * currentRadius;
@@ -111,6 +112,7 @@ public class KeyboardMouseMovement : MonoBehaviour {
         using (System.IO.StreamWriter file = 
             new System.IO.StreamWriter(@"valueDump.txt", true))
         {
+            file.WriteLine(Time.time);
             file.WriteLine(String.Format(jointLogFormat, "Joints:",
                                                          kinematicJoints[0].XMotion.GetTargetValue(),
                                                          kinematicJoints[1].XMotion.GetTargetValue(),
@@ -128,15 +130,15 @@ public class KeyboardMouseMovement : MonoBehaviour {
                                                           transform.rotation.y,
                                                           transform.rotation.z
                                                           ));
-//            if (toolAnimator != null)
-//                file.WriteLine(String.Format(coordinateLogFormat, "Tool:",
-//                                                          toolAnimator.bodyPosition.x,
-//                                                          toolAnimator.bodyPosition.y,
-//                                                          toolAnimator.bodyPosition.z,
-//                                                          toolAnimator.bodyRotation.x,
-//                                                          toolAnimator.bodyRotation.y,
-//                                                          toolAnimator.bodyRotation.z
-//                                                          ));
+            if (toolAnimator != null)
+                file.WriteLine(String.Format(coordinateLogFormat, "Tool:",
+                                                          toolAnimator.transform.position.x,
+                                                          toolAnimator.transform.position.y,
+                                                          toolAnimator.transform.position.z,
+                                                          toolAnimator.transform.eulerAngles.x,
+                                                          toolAnimator.transform.eulerAngles.y,
+                                                          toolAnimator.transform.eulerAngles.z
+                                                          ));
         }
     }
 }
