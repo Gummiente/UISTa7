@@ -92,6 +92,7 @@ public class KeyboardMouseMovement : MonoBehaviour {
     }
 
     private void oneSpiralStep() {
+
         Vector3 pos = transform.position;
 
         float xPos = Mathf.Sin(Time.time * spiralSpeed) * currentRadius;
@@ -111,6 +112,7 @@ public class KeyboardMouseMovement : MonoBehaviour {
         using (System.IO.StreamWriter file = 
             new System.IO.StreamWriter(@"valueDump.txt", true))
         {
+            file.WriteLine(Time.time);
             file.WriteLine(String.Format(jointLogFormat, "Joints:",
                                                          kinematicJoints[0].XMotion.GetTargetValue(),
                                                          kinematicJoints[1].XMotion.GetTargetValue(),
@@ -133,9 +135,9 @@ public class KeyboardMouseMovement : MonoBehaviour {
                                                           tool.transform.position.x,
                                                           tool.transform.position.y,
                                                           tool.transform.position.z,
-                                                          tool.transform.position.x,
-                                                          tool.transform.position.y,
-                                                          tool.transform.position.z
+                                                          tool.transform.eulerAngles.x,
+                                                          tool.transform.eulerAngles.y,
+                                                          tool.transform.eulerAngles.z
                                                           ));
         }
     }
